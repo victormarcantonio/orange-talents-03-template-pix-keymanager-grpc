@@ -41,10 +41,13 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
+    testCompile ("org.junit.jupiter:junit-jupiter:5.6.0")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:testcontainers")
     implementation("io.micronaut:micronaut-validation")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    testImplementation("org.mockito:mockito-core:2.1.0")
 }
 
 

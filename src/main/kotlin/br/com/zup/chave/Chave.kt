@@ -1,9 +1,10 @@
 package br.com.zup.chave
 
+import br.com.zup.chave.registra.Conta
+import br.com.zup.chave.registra.TipoChave
+import br.com.zup.chave.registra.TipoConta
 import java.util.*
 import javax.persistence.*
-import javax.validation.Valid
-import javax.validation.constraints.Max
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size

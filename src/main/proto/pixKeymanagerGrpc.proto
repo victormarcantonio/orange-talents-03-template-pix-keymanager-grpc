@@ -12,6 +12,9 @@ service PixKeymanagerGrpcService {
 }
 
 
+service 
+
+
 enum TipoChave{
   CHAVE_DEFAULT = 0;
   CPF=1;

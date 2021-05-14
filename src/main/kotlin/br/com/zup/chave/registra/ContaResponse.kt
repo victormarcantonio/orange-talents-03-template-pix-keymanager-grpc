@@ -1,6 +1,5 @@
-package br.com.zup.chave
+package br.com.zup.chave.registra
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.core.annotation.Introspected
 
 @Introspected
@@ -13,7 +12,7 @@ data class ContaResponse(
     )
 
 {
-    fun toConta(): Conta{
+    fun toConta(): Conta {
        return Conta(
            instituicao = this.instituicao.nome,
            ispb = this.instituicao.ispb,

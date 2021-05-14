@@ -1,18 +1,13 @@
 package br.com.zup.validation
 
-import br.com.zup.chave.ChaveRequest
+import br.com.zup.chave.registra.ChaveRequest
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
 import io.micronaut.validation.validator.constraints.ConstraintValidatorContext
-import org.hibernate.validator.constraints.CompositionType
-import org.hibernate.validator.constraints.ConstraintComposition
-import org.hibernate.validator.constraints.br.CPF
 import javax.inject.Singleton
 import javax.validation.Constraint
 
 import javax.validation.Payload
-import javax.validation.constraints.Email
-import javax.validation.constraints.Pattern
 import kotlin.reflect.KClass
 
 

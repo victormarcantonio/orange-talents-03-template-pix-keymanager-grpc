@@ -1,4 +1,4 @@
-package br.com.zup.chave
+package br.com.zup.chave.registra
 
 import javax.persistence.Embeddable
 import javax.persistence.Embedded

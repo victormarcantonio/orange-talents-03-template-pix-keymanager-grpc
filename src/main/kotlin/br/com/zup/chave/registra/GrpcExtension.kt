@@ -1,9 +1,9 @@
-package br.com.zup.chave
+package br.com.zup.chave.registra
 
 import br.com.zup.PixRequest
 
 
-fun PixRequest.toModel() : ChaveRequest{
+fun PixRequest.toModel() : ChaveRequest {
     return ChaveRequest(
         clienteId = id,
         tipoChave = when(tipoChave){

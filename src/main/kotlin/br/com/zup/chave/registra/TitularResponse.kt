@@ -1,4 +1,4 @@
-package br.com.zup.chave
+package br.com.zup.chave.registra
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.core.annotation.Introspected
