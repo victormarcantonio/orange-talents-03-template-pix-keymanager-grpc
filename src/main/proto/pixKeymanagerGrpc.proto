@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.zup";
+option java_outer_classname = "PixKeymanagerGrpc";
+option objc_class_prefix = "HLW";
+
+package br.com.zup.grpc;
+
+service PixKeymanagerGrpcService {
+  rpc adicionar (PixRequest) returns (PixResponse) {}
+}
+
+
+enum TipoChave{
+  CHAVE_DEFAULT = 0;
+  CPF=1;
+  CELULAR = 2;
+  EMAIL=3;
+  ALEATORIA=4;
+}
+
+
+enum TipoConta {
+  CONTA_DEFAULT=0;
+  CONTA_CORRENTE = 1;
+  CONTA_POUPANCA = 2;
+}
+
+message PixRequest {
+
+  string id = 1;
+  string chave = 2;
+  TipoConta tipoConta = 3;
+  TipoChave tipoChave = 4;
+
+}
+
+message PixResponse {
+  string id = 1;
+}
