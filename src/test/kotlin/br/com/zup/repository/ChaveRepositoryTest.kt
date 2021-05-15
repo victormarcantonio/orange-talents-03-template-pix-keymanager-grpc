@@ -1,6 +1,5 @@
 package br.com.zup.repository
 
-import br.com.zup.PixKeymanagerGrpcServiceGrpc
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
 import br.com.zup.chave.registra.Conta

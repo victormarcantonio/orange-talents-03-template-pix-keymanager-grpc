@@ -1,11 +1,10 @@
-package br.com.zup.chave
+package br.com.zup.chave.registra
 
-import br.com.zup.PixKeymanagerGrpcServiceGrpc
+import br.com.zup.PixKeymanagerRegistraGrpcServiceGrpc
 import br.com.zup.PixRequest
 import br.com.zup.PixResponse
-import br.com.zup.chave.registra.ChaveRequest
-import br.com.zup.chave.registra.ContaClient
-import br.com.zup.chave.registra.toModel
+import br.com.zup.chave.Chave
+import br.com.zup.chave.ChaveRepository
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.validation.Validated
@@ -15,7 +14,7 @@ import javax.validation.Valid
 
 @Singleton
 @Validated
-class ChaveEndpoint(val chaveRepository: ChaveRepository, val contaClient: ContaClient): PixKeymanagerGrpcServiceGrpc.PixKeymanagerGrpcServiceImplBase() {
+class RegistraChaveEndpoint(val chaveRepository: ChaveRepository, val contaClient: ContaClient): PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceImplBase() {
 
     override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
 
@@ -39,7 +38,7 @@ class ChaveEndpoint(val chaveRepository: ChaveRepository, val contaClient: Conta
     }
 
 
-    fun registra(@Valid chaveRequest: ChaveRequest): Chave{
+    fun registra(@Valid chaveRequest: ChaveRequest): Chave {
 
         val contaResponse = contaClient.consulta(chaveRequest.clienteId, chaveRequest.tipoConta.toString())
 

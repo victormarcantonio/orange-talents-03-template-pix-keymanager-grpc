@@ -1,6 +1,6 @@
 package br.com.zup.endpoint
 
-import br.com.zup.PixKeymanagerGrpcServiceGrpc
+import br.com.zup.PixKeymanagerRegistraGrpcServiceGrpc
 import br.com.zup.PixRequest
 import br.com.zup.TipoChave
 import br.com.zup.TipoConta
@@ -35,9 +35,9 @@ import javax.inject.Singleton
 
 
 @MicronautTest(transactional = false)
-class ChaveEndpointTest(
+class RegistraChaveEndpointTest(
     val repository: ChaveRepository,
-    val grpcClient: PixKeymanagerGrpcServiceGrpc.PixKeymanagerGrpcServiceBlockingStub
+    val grpcClient: PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceBlockingStub
 ) {
 
 
@@ -189,8 +189,8 @@ class ChaveEndpointTest(
     @Factory
     class Clients{
         @Singleton
-        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): PixKeymanagerGrpcServiceGrpc.PixKeymanagerGrpcServiceBlockingStub?{
-            return PixKeymanagerGrpcServiceGrpc.newBlockingStub(channel)
+        fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceBlockingStub?{
+            return PixKeymanagerRegistraGrpcServiceGrpc.newBlockingStub(channel)
         }
     }
 
