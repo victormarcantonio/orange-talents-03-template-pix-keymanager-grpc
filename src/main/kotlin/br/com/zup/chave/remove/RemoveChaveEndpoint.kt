@@ -11,13 +11,22 @@ import javax.inject.Singleton
 @Singleton
 class RemoveChaveEndpoint (val chaveRepository: ChaveRepository): PixKeyManagerRemoveGrpcServiceGrpc.PixKeyManagerRemoveGrpcServiceImplBase(){
     override fun deletar(request: RemovePixRequest?, responseObserver: StreamObserver<RemovePixResponse>?) {
-        val chaveExiste = chaveRepository.existsById(request!!.pixId)
-        if(!chaveExiste){
+        val possivelChave = chaveRepository.findById(request!!.pixId)
+        if(possivelChave.isEmpty){
           responseObserver?.onError(Status.NOT_FOUND
               .withDescription("Chave não existe")
               .asRuntimeException())
             return
         }
-        chaveRepository.deleteById(request.pixId)
+        val chave = possivelChave.get()
+        if(chave.pertenceAoCliente(request.clienteId)){
+            chaveRepository.deleteById(request.pixId)
+        }
+
+        responseObserver?.onError(Status.PERMISSION_DENIED
+            .withDescription("Chave não pertence ao cliente que está tentando removê-la")
+            .asRuntimeException())
+        return
+
     }
 }

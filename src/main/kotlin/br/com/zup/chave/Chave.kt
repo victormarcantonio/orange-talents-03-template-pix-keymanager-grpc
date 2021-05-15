@@ -17,4 +17,10 @@ class Chave(@field: NotNull val clienteId: UUID,
             @field: NotNull val tipoConta: TipoConta,
             @field:Embedded val conta: Conta
 ) {
+
+
+
+    fun pertenceAoCliente(id: String):Boolean{
+        return this.clienteId.equals(id)
+    }
 }
