@@ -1,5 +1,6 @@
 package br.com.zup.chave.registra
 
+import br.com.zup.chave.Conta
 import io.micronaut.core.annotation.Introspected
 
 @Introspected

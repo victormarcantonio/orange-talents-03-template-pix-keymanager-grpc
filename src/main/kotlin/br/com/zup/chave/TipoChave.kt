@@ -1,4 +1,4 @@
-package br.com.zup.chave.registra
+package br.com.zup.chave
 
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator

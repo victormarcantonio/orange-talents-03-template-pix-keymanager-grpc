@@ -2,20 +2,15 @@ package br.com.zup.repository
 
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
-import br.com.zup.chave.registra.Conta
-import br.com.zup.chave.registra.TipoChave
-import br.com.zup.chave.registra.TipoConta
-import io.grpc.ManagedChannel
-import io.micronaut.context.annotation.Factory
-import io.micronaut.grpc.annotation.GrpcChannel
-import io.micronaut.grpc.server.GrpcServerChannel
+import br.com.zup.chave.Conta
+import br.com.zup.chave.TipoChave
+import br.com.zup.chave.TipoConta
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
-import javax.inject.Singleton
 
 @MicronautTest(transactional = false)
 class ChaveRepositoryTest (

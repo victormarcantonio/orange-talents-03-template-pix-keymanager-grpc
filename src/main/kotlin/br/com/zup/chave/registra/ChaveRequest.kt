@@ -4,6 +4,9 @@ package br.com.zup.chave.registra
 
 
 import br.com.zup.chave.Chave
+import br.com.zup.chave.Conta
+import br.com.zup.chave.TipoChave
+import br.com.zup.chave.TipoConta
 import br.com.zup.validation.ValidaChave
 //import br.com.zup.validation.ValidaChave
 import io.micronaut.core.annotation.Introspected

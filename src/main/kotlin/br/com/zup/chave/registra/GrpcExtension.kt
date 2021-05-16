@@ -1,6 +1,8 @@
 package br.com.zup.chave.registra
 
 import br.com.zup.PixRequest
+import br.com.zup.chave.TipoChave
+import br.com.zup.chave.TipoConta
 
 
 fun PixRequest.toModel() : ChaveRequest {

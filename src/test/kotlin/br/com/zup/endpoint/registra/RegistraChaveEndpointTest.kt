@@ -1,4 +1,4 @@
-package br.com.zup.endpoint
+package br.com.zup.endpoint.registra
 
 import br.com.zup.PixKeymanagerRegistraGrpcServiceGrpc
 import br.com.zup.PixRequest
@@ -6,6 +6,7 @@ import br.com.zup.TipoChave
 import br.com.zup.TipoConta
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
+import br.com.zup.chave.Conta
 import br.com.zup.chave.registra.*
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -14,8 +15,6 @@ import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.client.HttpClient
-import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
@@ -35,18 +33,18 @@ import javax.inject.Singleton
 
 
 @MicronautTest(transactional = false)
-class ChaveEndpointTest(
-    val repository: ChaveRepository,
-    val grpcClient: PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceBlockingStub
+internal class RegistraChaveEndpointTest(
+    private val repository: ChaveRepository,
+    private val grpcClient: PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceBlockingStub
 ) {
 
 
     @field:Inject
-    lateinit var contaClient: ContaClient
+    private lateinit var contaClient: ContaClient
 
 
     @BeforeEach
-    fun setup(){
+     fun setup(){
         repository.deleteAll()
     }
 
@@ -71,12 +69,12 @@ class ChaveEndpointTest(
 
     @Test
     internal fun `Não deve cadastrar chave caso já exista`() {
-        val existente =   repository.save(
+          repository.save(
             Chave(
                 UUID.randomUUID(),
-                br.com.zup.chave.registra.TipoChave.CELULAR,
-                "111.111.11-11",
-                br.com.zup.chave.registra.TipoConta.CONTA_CORRENTE,
+                br.com.zup.chave.TipoChave.CELULAR,
+                "111.111.111-11",
+                br.com.zup.chave.TipoConta.CONTA_CORRENTE,
                 Conta(
                     "Itaú",
                     "12345",
@@ -89,7 +87,7 @@ class ChaveEndpointTest(
         val error = assertThrows<StatusRuntimeException> {
             grpcClient.adicionar(PixRequest.newBuilder()
                 .setId(CLIENTE_ID.toString())
-                .setChave("111.111.11-11")
+                .setChave("111.111.111-11")
                 .setTipoConta(TipoConta.CONTA_CORRENTE)
                 .setTipoChave(TipoChave.CPF)
                 .build())
@@ -146,8 +144,6 @@ class ChaveEndpointTest(
             Arguments.of(TipoChave.ALEATORIA, true)
         )
     }
-
-
 
     companion object{
 

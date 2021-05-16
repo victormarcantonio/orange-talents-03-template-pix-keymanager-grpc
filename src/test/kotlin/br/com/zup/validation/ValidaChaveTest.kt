@@ -1,6 +1,6 @@
 package br.com.zup.validation
 
-import br.com.zup.chave.registra.TipoChave
+import br.com.zup.chave.TipoChave
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

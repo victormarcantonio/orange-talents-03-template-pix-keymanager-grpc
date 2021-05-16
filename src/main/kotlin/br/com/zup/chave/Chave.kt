@@ -1,8 +1,5 @@
 package br.com.zup.chave
 
-import br.com.zup.chave.registra.Conta
-import br.com.zup.chave.registra.TipoChave
-import br.com.zup.chave.registra.TipoConta
 import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
@@ -20,7 +17,31 @@ class Chave(@field: NotNull val clienteId: UUID,
 
 
 
-    fun pertenceAoCliente(id: String):Boolean{
-        return this.clienteId.equals(id)
+    fun pertenceAoCliente(clienteId: UUID):Boolean{
+        return this.clienteId.equals(clienteId)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Chave) return false
+
+        if (clienteId != other.clienteId) return false
+        if (tipoChave != other.tipoChave) return false
+        if (chaveId != other.chaveId) return false
+        if (tipoConta != other.tipoConta) return false
+        if (conta != other.conta) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = clienteId.hashCode()
+        result = 31 * result + tipoChave.hashCode()
+        result = 31 * result + chaveId.hashCode()
+        result = 31 * result + tipoConta.hashCode()
+        result = 31 * result + conta.hashCode()
+        return result
+    }
+
+
 }
