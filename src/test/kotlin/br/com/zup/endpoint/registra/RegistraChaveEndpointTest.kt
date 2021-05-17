@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import java.lang.IllegalArgumentException
 import java.util.*
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -49,6 +50,22 @@ internal class RegistraChaveEndpointTest(
     }
 
 
+
+    val conta = Conta(
+        "Itaú",
+        "12345",
+        "Victor Marcatonio",
+        "111.111.111-11",
+        "1", "123"
+    )
+
+    val chave =  Chave(UUID.randomUUID(),
+        br.com.zup.chave.TipoChave.CELULAR,
+        "111.111.111-11",
+        br.com.zup.chave.TipoConta.CONTA_CORRENTE,
+        conta)
+
+
     @ParameterizedTest
     @MethodSource("retornaChaves")
     internal fun `deve cadastrar uma chave pix`(chave: String, tipoChave: TipoChave) {
@@ -69,21 +86,9 @@ internal class RegistraChaveEndpointTest(
 
     @Test
     internal fun `Não deve cadastrar chave caso já exista`() {
-          repository.save(
-            Chave(
-                UUID.randomUUID(),
-                br.com.zup.chave.TipoChave.CELULAR,
-                "111.111.111-11",
-                br.com.zup.chave.TipoConta.CONTA_CORRENTE,
-                Conta(
-                    "Itaú",
-                    "12345",
-                    "Victor Marcatonio",
-                    "111.111.111-11",
-                    "1", "123"
-                )
+          repository.save(chave
             )
-        )
+
         val error = assertThrows<StatusRuntimeException> {
             grpcClient.adicionar(PixRequest.newBuilder()
                 .setId(CLIENTE_ID.toString())
@@ -116,6 +121,21 @@ internal class RegistraChaveEndpointTest(
 
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
         }
+    }
+
+    @Test
+    internal fun `nao deve cadastrar chave caso dados estejam em branco`() {
+
+         assertThrows<IllegalArgumentException> {
+            grpcClient.adicionar(PixRequest.newBuilder()
+                .setId("")
+                .setChave("")
+                .setTipoConta(TipoConta.valueOf(""))
+                .setTipoChave(TipoChave.valueOf(""))
+                .build())
+        }
+
+
     }
 
 
@@ -167,7 +187,7 @@ internal class RegistraChaveEndpointTest(
             )
         }
     }
-    private fun dadosContaResponse(): ContaResponse{
+     fun dadosContaResponse(): ContaResponse{
         return ContaResponse(
             tipo="CONTA_CORRENTE",
             instituicao = InstituicaoResponse("ITAU", "1234"),
@@ -176,6 +196,7 @@ internal class RegistraChaveEndpointTest(
             titular = TitularResponse(UUID.randomUUID().toString(),"Victor", "519.491.250-17")
         )
     }
+
 
     @MockBean(ContaClient::class)
     fun contaClient(): ContaClient?{

@@ -3,27 +3,35 @@ package br.com.zup.endpoint.remove
 import br.com.zup.PixKeyManagerRemoveGrpcServiceGrpc
 import br.com.zup.RemovePixRequest
 import br.com.zup.chave.*
+import br.com.zup.chave.registra.BcbClient
+import br.com.zup.chave.registra.ContaClient
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
+import org.mockito.Mockito
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @MicronautTest(transactional = false)
 internal class RemoveChaveEndpointTest(
-    private val repository: ChaveRepository,
-    private  val grpcClient: PixKeyManagerRemoveGrpcServiceGrpc.PixKeyManagerRemoveGrpcServiceBlockingStub
+     val repository: ChaveRepository,
+     val grpcClient: PixKeyManagerRemoveGrpcServiceGrpc.PixKeyManagerRemoveGrpcServiceBlockingStub,
 ) {
+
+
+    @field:Inject
+    private lateinit var bcbClient: BcbClient
 
 
     val chave = Chave(
@@ -83,6 +91,11 @@ internal class RemoveChaveEndpointTest(
             assertEquals(Status.NOT_FOUND.code, status.code)
             assertEquals("Chave não existe", status.description)
         }
+    }
+
+    @MockBean(ContaClient::class)
+    fun bcbClient(): BcbClient?{
+        return Mockito.mock(BcbClient::class.java)
     }
 
     @Factory

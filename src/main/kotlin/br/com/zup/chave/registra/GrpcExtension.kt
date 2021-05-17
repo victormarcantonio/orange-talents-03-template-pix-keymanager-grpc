@@ -1,8 +1,11 @@
 package br.com.zup.chave.registra
 
 import br.com.zup.PixRequest
+import br.com.zup.RemovePixRequest
 import br.com.zup.chave.TipoChave
 import br.com.zup.chave.TipoConta
+import br.com.zup.chave.TipoPessoa
+import br.com.zup.chave.remove.DeletaChaveRequest
 
 
 fun PixRequest.toModel() : ChaveRequest {
@@ -16,7 +19,17 @@ fun PixRequest.toModel() : ChaveRequest {
         tipoConta = when(tipoConta){
             br.com.zup.TipoConta.CONTA_DEFAULT -> null
                 else -> TipoConta.valueOf(tipoConta.name)
+        },
+        tipoPessoa = when(tipoPessoa){
+            br.com.zup.TipoPessoa.PESSOA_DEFAULT -> null
+            else -> TipoPessoa.valueOf(tipoPessoa.name)
         }
+    )
+}
 
+fun RemovePixRequest.toModel(): DeletaChaveRequest{
+    return DeletaChaveRequest(
+        key = pixId,
+        participant = "60701190"
     )
 }

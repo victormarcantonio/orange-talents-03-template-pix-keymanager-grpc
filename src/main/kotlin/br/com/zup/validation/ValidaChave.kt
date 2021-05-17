@@ -32,7 +32,6 @@ class ValidaChavePix : ConstraintValidator<ValidaChave, ChaveRequest>{
         if(value?.tipoChave== null){
             return false
         }
-        println(value.chave)
         return value.tipoChave.valida(value.chave)
 
     }

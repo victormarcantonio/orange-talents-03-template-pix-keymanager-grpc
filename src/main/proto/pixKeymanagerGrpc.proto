@@ -32,12 +32,19 @@ enum TipoConta {
   CONTA_POUPANCA = 2;
 }
 
+enum TipoPessoa{
+  PESSOA_DEFAULT=0;
+  NATURAL_PERSON = 1;
+  LEGAL_PERSON = 2;
+}
+
 message PixRequest {
 
   string id = 1;
   string chave = 2;
   TipoConta tipoConta = 3;
   TipoChave tipoChave = 4;
+  TipoPessoa tipoPessoa = 5;
 
 }
 

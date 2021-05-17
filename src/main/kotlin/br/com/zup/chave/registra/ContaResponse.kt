@@ -15,12 +15,14 @@ data class ContaResponse(
 {
     fun toConta(): Conta {
        return Conta(
-           instituicao = this.instituicao.nome,
-           ispb = this.instituicao.ispb,
-           titular = this.titular.nome,
-           cpfTitular = this.titular.cpf,
-           agencia = this.agencia,
-           numero = this.numero
+           instituicao = instituicao.nome,
+           ispb = instituicao.ispb,
+           titular = titular.nome,
+           cpfTitular = titular.cpf,
+           agencia = agencia,
+           numero = numero
        )
     }
+
+
 }

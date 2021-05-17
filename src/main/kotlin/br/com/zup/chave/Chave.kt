@@ -11,14 +11,25 @@ import javax.validation.constraints.Size
 class Chave(@field: NotNull val clienteId: UUID,
             @field: NotNull val tipoChave: TipoChave,
             @field: NotBlank @field: Size(max=77) @field: Id var chaveId: String,
-            @field: NotNull val tipoConta: TipoConta,
+            @field: NotNull var tipoConta: TipoConta,
             @field:Embedded val conta: Conta
 ) {
 
 
-
     fun pertenceAoCliente(clienteId: UUID):Boolean{
         return this.clienteId.equals(clienteId)
+    }
+
+    fun isAleatoria(): Boolean{
+        return tipoChave== TipoChave.ALEATORIA
+    }
+
+    fun atualiza(chaveAleatoria: String): Boolean{
+        if(isAleatoria()){
+            this.chaveId = chaveAleatoria
+            return true
+        }
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
