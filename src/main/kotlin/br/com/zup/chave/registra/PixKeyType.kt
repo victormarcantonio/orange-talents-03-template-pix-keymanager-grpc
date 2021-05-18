@@ -7,6 +7,4 @@ enum class PixKeyType() {
     PHONE,
     EMAIL,
     RANDOM
-
-
 }

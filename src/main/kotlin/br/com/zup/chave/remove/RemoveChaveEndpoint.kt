@@ -14,38 +14,38 @@ import javax.inject.Singleton
 class RemoveChaveEndpoint(val chaveRepository: ChaveRepository, val bcbClient: BcbClient) :
     PixKeyManagerRemoveGrpcServiceGrpc.PixKeyManagerRemoveGrpcServiceImplBase() {
     override fun deletar(request: RemovePixRequest?, responseObserver: StreamObserver<RemovePixResponse>) {
-        val possivelChave = chaveRepository.findByChaveId(request!!.pixId)
+         chaveRepository.findById(UUID.fromString(request!!.pixId))
+            .map { chave ->
+                if (chave.pertenceAoCliente(UUID.fromString(request.clienteId))) {
+                    val requestDeletaBcb = DeletaChaveRequest(chave.chaveId)
+                    val bcbResponse = bcbClient.deletaBcb(requestDeletaBcb, chave.chaveId)
+                    println(requestDeletaBcb)
+                    if (bcbResponse.status != HttpStatus.OK) {
+                        responseObserver.onError(
+                            Status.FAILED_PRECONDITION
+                                .withDescription("Erro ao deletar chave no bcb")
+                                .asRuntimeException()
+                        )
+                    } else {
+                        chaveRepository.delete(chave)
+                        responseObserver.onNext(RemovePixResponse.newBuilder().build())
+                        responseObserver.onCompleted()
+                    }
 
-        if (possivelChave.isEmpty) {
-            responseObserver.onError(
-                Status.NOT_FOUND
-                    .withDescription("Chave não existe")
-                    .asRuntimeException()
-            )
-        }
-
-        val chave = possivelChave.get()
-        val requestDeletaBcb = request.toModel()
-
-        if (chave.pertenceAoCliente(UUID.fromString(request.clienteId))) {
-            val bcbResponse = bcbClient.deletaBcb(requestDeletaBcb, request.pixId)
-            if (bcbResponse.status != HttpStatus.OK) {
+                } else {
+                    responseObserver.onError(
+                        Status.PERMISSION_DENIED
+                            .withDescription("Chave não pertence ao cliente que está tentando removê-la")
+                            .asRuntimeException()
+                    )
+                }
+            }.orElseGet {
                 responseObserver.onError(
-                    Status.FAILED_PRECONDITION
-                        .withDescription("Erro ao deletar chave no bcb")
+                    Status.NOT_FOUND
+                        .withDescription("Chave não existe")
                         .asRuntimeException()
                 )
             }
-            chaveRepository.deleteById(chave.id!!)
-            responseObserver.onNext(RemovePixResponse.newBuilder().build())
-            responseObserver.onCompleted()
-        } else {
-            responseObserver.onError(
-                Status.PERMISSION_DENIED
-                    .withDescription("Chave não pertence ao cliente que está tentando removê-la")
-                    .asRuntimeException()
-            )
-        }
-
     }
 }
+

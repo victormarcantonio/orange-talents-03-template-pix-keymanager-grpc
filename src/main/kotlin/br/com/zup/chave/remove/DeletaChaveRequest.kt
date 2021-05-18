@@ -1,5 +1,6 @@
 package br.com.zup.chave.remove
 
-data class DeletaChaveRequest(val key: String,
-                              val participant: String ) {
+import br.com.zup.chave.Chave
+
+data class DeletaChaveRequest(val key: String, val participant: String = "60701190" ) {
 }

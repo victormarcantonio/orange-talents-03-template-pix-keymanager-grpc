@@ -26,10 +26,3 @@ fun PixRequest.toModel() : ChaveRequest {
         }
     )
 }
-
-fun RemovePixRequest.toModel(): DeletaChaveRequest{
-    return DeletaChaveRequest(
-        key = pixId,
-        participant = "60701190"
-    )
-}

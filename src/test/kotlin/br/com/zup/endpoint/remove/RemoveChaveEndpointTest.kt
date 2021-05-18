@@ -33,6 +33,9 @@ internal class RemoveChaveEndpointTest(
     @field:Inject
     private lateinit var bcbClient: BcbClient
 
+    lateinit var CHAVE_EXISTENTE: Chave
+
+
 
     val chave = Chave(
         UUID.fromString("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf"),
@@ -47,21 +50,22 @@ internal class RemoveChaveEndpointTest(
             "1", "123"
         ))
 
+
     @BeforeEach
     fun setup(){
         repository.deleteAll()
-        repository.save(chave)
+        CHAVE_EXISTENTE = repository.save(chave)
 
     }
 
     @Test
     internal fun `deve remover chave`() {
 
-        Mockito.`when`(bcbClient.deletaBcb(bcbRequest(),"11111111111"))
+        Mockito.`when`(bcbClient.deletaBcb(bcbRequest(), "11111111111"))
             .thenReturn(HttpResponse.ok())
         grpcClient.deletar(RemovePixRequest.newBuilder()
             .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf")
-            .setPixId("11111111111")
+            .setPixId(CHAVE_EXISTENTE.id.toString())
             .build())
         assertEquals(0,repository.count())
     }
@@ -72,7 +76,7 @@ internal class RemoveChaveEndpointTest(
         val error = assertThrows<StatusRuntimeException> {
             grpcClient.deletar(RemovePixRequest.newBuilder()
                 .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3be")
-                .setPixId("11111111111")
+                .setPixId(CHAVE_EXISTENTE.id.toString())
                 .build())
         }
 
@@ -87,7 +91,7 @@ internal class RemoveChaveEndpointTest(
             grpcClient.deletar(
                 RemovePixRequest.newBuilder()
                     .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3be")
-                    .setPixId("111.111.111-12")
+                    .setPixId("ea10b0f0-2ae5-4e40-9fbe-6593922f0462")
                     .build())
         }
         with(error){
@@ -105,7 +109,7 @@ internal class RemoveChaveEndpointTest(
             grpcClient.deletar(
                 RemovePixRequest.newBuilder()
                     .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf")
-                    .setPixId("11111111111")
+                    .setPixId(CHAVE_EXISTENTE.id.toString())
                     .build())
         }
         with(error){
@@ -116,9 +120,7 @@ internal class RemoveChaveEndpointTest(
 
     private fun bcbRequest(): DeletaChaveRequest {
         return DeletaChaveRequest(
-
-            key = "11111111111",
-            participant = "60701190"
+            key = "11111111111"
         )
     }
 
