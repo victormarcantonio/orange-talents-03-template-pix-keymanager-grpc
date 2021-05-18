@@ -6,10 +6,11 @@ import br.com.zup.PixResponse
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
 import br.com.zup.chave.exception.HttpResponseException
+import br.com.zup.client.BcbClient
+import br.com.zup.client.ContaClient
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
-import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import javax.inject.Singleton
 import javax.transaction.Transactional
@@ -23,7 +24,7 @@ class RegistraChaveEndpoint(val chaveRepository: ChaveRepository, val contaClien
 
     override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
 
-        if(chaveRepository.existsById(request.chave)){
+        if(chaveRepository.existsByChaveId(request.chave)){
             responseObserver.onError(Status.ALREADY_EXISTS
                 .withDescription("Chave já cadastrada")
                 .asRuntimeException())
@@ -40,9 +41,9 @@ class RegistraChaveEndpoint(val chaveRepository: ChaveRepository, val contaClien
                 .withDescription("Dados inválidos")
                 .asRuntimeException())
             return
-        }catch (e: HttpClientResponseException){
-            responseObserver.onError(Status.ALREADY_EXISTS
-                .withDescription("Chave já encontra-se cadastrada")
+        }catch (e: HttpResponseException){
+            responseObserver.onError(Status.FAILED_PRECONDITION
+                .withDescription("erro ao cadastrar chave no bcb")
                 .asRuntimeException())
         }
     }
@@ -56,13 +57,10 @@ class RegistraChaveEndpoint(val chaveRepository: ChaveRepository, val contaClien
         val conta = contaResponse?.body()?.toConta() ?: throw IllegalStateException("Cliente não encontrado")
         val chave = chaveRequest.toChave(conta)
         chaveRepository.save(chave)
-
         val bcbResponse =  bcbClient.cadastraBcb(requestToBcb)
         if(bcbResponse.status != HttpStatus.CREATED){
-            throw HttpResponseException ("Erro")
+            throw HttpResponseException("Erro ao cadastrar chave no bcb")
         }
-        println(bcbResponse.body()!!.key)
-        println(chave.chaveId)
           chave.atualiza(bcbResponse.body()!!.key)
 
         chaveRepository.update(chave)

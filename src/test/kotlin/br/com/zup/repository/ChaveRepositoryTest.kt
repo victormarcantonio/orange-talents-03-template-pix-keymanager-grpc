@@ -63,6 +63,6 @@ class ChaveRepositoryTest (
                 )
             )
         )
-        assertTrue(repository.existsById("111.111.11-11"))
+        assertTrue(repository.existsByChaveId("111.111.11-11"))
     }
 }

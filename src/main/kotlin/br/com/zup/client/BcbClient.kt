@@ -1,5 +1,7 @@
-package br.com.zup.chave.registra
+package br.com.zup.client
 
+import br.com.zup.chave.registra.ChaveRequestBcb
+import br.com.zup.chave.registra.CreatePixKeyResponse
 import br.com.zup.chave.remove.DeletaChaveRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
@@ -12,7 +14,7 @@ interface BcbClient {
     @Post("/api/v1/pix/keys")
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
-    fun cadastraBcb(@Body chaveRequestBcb: ChaveRequestBcb): HttpResponse<ChaveBcbResponse?>
+    fun cadastraBcb(@Body chaveRequestBcb: ChaveRequestBcb): HttpResponse<CreatePixKeyResponse?>
 
     @Delete("/api/v1/pix/keys/{key}")
     @Consumes(MediaType.APPLICATION_XML)

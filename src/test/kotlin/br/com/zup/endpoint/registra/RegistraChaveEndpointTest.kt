@@ -7,7 +7,10 @@ import br.com.zup.TipoConta
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
 import br.com.zup.chave.Conta
+import br.com.zup.chave.TipoPessoa
 import br.com.zup.chave.registra.*
+import br.com.zup.client.BcbClient
+import br.com.zup.client.ContaClient
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -27,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import java.lang.IllegalArgumentException
+import java.time.LocalDateTime
 import java.util.*
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -43,13 +47,14 @@ internal class RegistraChaveEndpointTest(
     @field:Inject
     private lateinit var contaClient: ContaClient
 
+    @field:Inject
+    private lateinit var bcbClient: BcbClient
+
 
     @BeforeEach
      fun setup(){
         repository.deleteAll()
     }
-
-
 
     val conta = Conta(
         "Itaú",
@@ -63,25 +68,84 @@ internal class RegistraChaveEndpointTest(
         br.com.zup.chave.TipoChave.CELULAR,
         "111.111.111-11",
         br.com.zup.chave.TipoConta.CONTA_CORRENTE,
-        conta)
+        conta
+    )
+
+    @Test
+    internal fun `deve cadastrar uma chave pix`() {
 
 
-    @ParameterizedTest
-    @MethodSource("retornaChaves")
-    internal fun `deve cadastrar uma chave pix`(chave: String, tipoChave: TipoChave) {
-
-        `when`(contaClient.consulta(CLIENTE_ID.toString(),"CONTA_CORRENTE"))
+        `when`(contaClient.consulta(CLIENTE_ID,"CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosContaResponse()))
+
+        `when`(bcbClient.cadastraBcb(bcbRequest()))
+            .thenReturn(HttpResponse.created(createPixKeyResponse()))
+
 
         val response = grpcClient.adicionar(PixRequest.newBuilder()
             .setId(CLIENTE_ID.toString())
-            .setChave(chave)
+            .setChave("11111111111")
             .setTipoConta(TipoConta.CONTA_CORRENTE)
-            .setTipoChave(tipoChave)
+            .setTipoChave(TipoChave.CPF)
+            .setTipoPessoa(br.com.zup.TipoPessoa.NATURAL_PERSON)
             .build())
 
         assertNotNull(response.id)
-        assertTrue(repository.existsById(response.id))
+        assertTrue(repository.existsByChaveId((response.id)))
+    }
+
+    @Test
+    internal fun `deve cadastrar chave aleatória`() {
+
+        val request = ChaveRequestBcb(
+            keyType = PixKeyType.RANDOM,
+            key = "",
+            bankAccount = BankAccountRequest(
+                participant = "60701190",
+                branch = "1234",
+                accountNumber = "123456",
+                accountType = AccountType.CACC
+            ),
+            owner = OwnerRequest(
+                type = TipoPessoa.NATURAL_PERSON,
+                name = "Victor",
+                taxIdNumber = "11111111111"
+            )
+        )
+
+        val responseBcb = CreatePixKeyResponse(
+            keyType = PixKeyType.RANDOM,
+            key ="4f2ad454-b8a5-4ccf-b0cf-0d4efb7cf473",
+            bankAccount = BankAccountResponse(
+                participant = "60701190",
+                branch = "1234",
+                accountNumber = "123",
+                accountType = AccountType.CACC
+            ),
+            owner = OwnerResponse(
+                type = TipoPessoa.NATURAL_PERSON,
+                name = "Victor",
+                taxIdNumber = "11111111111"
+            ),
+            createdAt = LocalDateTime.now()
+        )
+
+        `when`(contaClient.consulta(CLIENTE_ID,"CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosContaResponse()))
+
+        `when`(bcbClient.cadastraBcb(request))
+            .thenReturn(HttpResponse.created(responseBcb))
+
+
+        val response = grpcClient.adicionar(PixRequest.newBuilder()
+            .setId(CLIENTE_ID.toString())
+            .setTipoConta(TipoConta.CONTA_CORRENTE)
+            .setTipoChave(TipoChave.ALEATORIA)
+            .setTipoPessoa(br.com.zup.TipoPessoa.NATURAL_PERSON)
+            .build())
+
+        assertNotNull(response.id)
+        assertTrue(repository.existsByChaveId((response.id)))
     }
 
     @Test
@@ -156,6 +220,34 @@ internal class RegistraChaveEndpointTest(
         }
     }
 
+    @Test
+    internal fun `nao deve cadastrar caso ocorra erro no bcb`() {
+
+
+        `when`(contaClient.consulta(CLIENTE_ID,"CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosContaResponse()))
+
+
+        `when`(bcbClient.cadastraBcb(bcbRequest()))
+            .thenReturn(HttpResponse.badRequest())
+
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.adicionar(PixRequest.newBuilder()
+                .setId("c56dfef4-7901-44fb-84e2-a2cefb157890")
+                .setChave("11111111111")
+                .setTipoConta(TipoConta.CONTA_CORRENTE)
+                .setTipoChave(TipoChave.CPF)
+                .setTipoPessoa(br.com.zup.TipoPessoa.NATURAL_PERSON)
+                .build())
+        }
+
+        with(error) {
+
+            assertEquals(Status.FAILED_PRECONDITION.code,status.code )
+        }
+    }
+
+
     fun retornaTiposDeChave(): Stream<Arguments?>? {
         return Stream.of(
             Arguments.of(TipoChave.CPF, true),
@@ -167,7 +259,7 @@ internal class RegistraChaveEndpointTest(
 
     companion object{
 
-        val CLIENTE_ID = UUID.randomUUID()
+        val CLIENTE_ID = "c56dfef4-7901-44fb-84e2-a2cefb157890"
         @JvmStatic
         fun retornaChaves(): Stream<Arguments?>? {
             return Stream.of(
@@ -190,10 +282,56 @@ internal class RegistraChaveEndpointTest(
      fun dadosContaResponse(): ContaResponse{
         return ContaResponse(
             tipo="CONTA_CORRENTE",
-            instituicao = InstituicaoResponse("ITAU", "1234"),
+            instituicao = InstituicaoResponse("ITAU", "60701190"),
             agencia = "1234",
             numero = "123456",
-            titular = TitularResponse(UUID.randomUUID().toString(),"Victor", "519.491.250-17")
+            titular = TitularResponse(UUID.randomUUID().toString(),"Victor", "11111111111")
+        )
+    }
+
+    private fun bcbRequest(): ChaveRequestBcb{
+        return ChaveRequestBcb(
+            keyType = PixKeyType.CPF,
+            key = "11111111111",
+            bankAccount = bankAccountRequest(),
+            owner = owner()
+        )
+    }
+
+    fun bankAccountRequest(): BankAccountRequest{
+        return BankAccountRequest(
+            participant = "60701190",
+            branch = "1234",
+            accountNumber = "123456",
+            accountType = AccountType.CACC
+        )
+    }
+
+    fun owner(): OwnerRequest{
+        return OwnerRequest(
+            type = TipoPessoa.NATURAL_PERSON,
+            name = "Victor",
+            taxIdNumber = "11111111111"
+        )
+    }
+
+
+     fun createPixKeyResponse(): CreatePixKeyResponse {
+        return CreatePixKeyResponse(
+            keyType = PixKeyType.CPF,
+            key = "11111111111",
+            bankAccount = BankAccountResponse(
+                participant = "60701190",
+                branch = "1234",
+                accountNumber = "123",
+                accountType = AccountType.CACC
+            ),
+            owner = OwnerResponse(
+                type = TipoPessoa.NATURAL_PERSON,
+                name = "Victor",
+                taxIdNumber = "11111111111"
+            ),
+            createdAt = LocalDateTime.now()
         )
     }
 
@@ -201,6 +339,11 @@ internal class RegistraChaveEndpointTest(
     @MockBean(ContaClient::class)
     fun contaClient(): ContaClient?{
         return Mockito.mock(ContaClient::class.java)
+    }
+
+    @MockBean(BcbClient::class)
+    fun bcbClient(): BcbClient?{
+        return Mockito.mock(BcbClient::class.java)
     }
 
     @Factory

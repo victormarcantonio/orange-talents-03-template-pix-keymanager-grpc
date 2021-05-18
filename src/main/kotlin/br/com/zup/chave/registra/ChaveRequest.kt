@@ -33,16 +33,19 @@ data class ChaveRequest(@field: NotNull val clienteId: String,
  }
 
     fun toChaveRequestBcb(contaResponse: ContaResponse?): ChaveRequestBcb{
+        if(chave.isBlank()){
+            chave = ""
+        }
         return ChaveRequestBcb(
             keyType = byKeyType(tipoChave),
             key = this.chave,
-            bankAccount = BankAccount(
+            bankAccount = BankAccountRequest(
              contaResponse!!.instituicao.ispb,
              contaResponse.agencia,
              contaResponse.numero,
              byTipoContaBcb(TipoConta.valueOf(contaResponse.tipo))
          ),
-            owner = Owner(
+            owner = OwnerRequest(
                 tipoPessoa,
                 contaResponse.titular.nome,
                 contaResponse.titular.cpf

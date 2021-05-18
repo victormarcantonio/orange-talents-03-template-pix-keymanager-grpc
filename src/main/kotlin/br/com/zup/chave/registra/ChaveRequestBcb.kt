@@ -11,7 +11,21 @@ import javax.validation.constraints.NotNull
 data class ChaveRequestBcb(
     @field: NotNull val keyType: PixKeyType,
     @field: NotNull val key: String?,
-    @field: NotNull val bankAccount: BankAccount,
-    @field: NotNull val owner: Owner
+    @field: NotNull val bankAccount: BankAccountRequest,
+    @field: NotNull val owner: OwnerRequest
 ) {
 }
+
+
+@Introspected
+data class OwnerRequest(@field: NotNull val type: TipoPessoa?,
+                 @field: NotNull val name: String,
+                 @field: NotNull val taxIdNumber: String)
+
+
+@Introspected
+data class BankAccountRequest(@field: NotNull val participant: String,
+                       @field: NotBlank val branch: String,
+                       @field: NotBlank val accountNumber: String,
+                       @field: NotNull val accountType: AccountType)
+

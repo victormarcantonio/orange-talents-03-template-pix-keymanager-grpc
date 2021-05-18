@@ -3,21 +3,21 @@ package br.com.zup.endpoint.remove
 import br.com.zup.PixKeyManagerRemoveGrpcServiceGrpc
 import br.com.zup.RemovePixRequest
 import br.com.zup.chave.*
-import br.com.zup.chave.registra.BcbClient
-import br.com.zup.chave.registra.ContaClient
+import br.com.zup.chave.remove.DeletaChaveRequest
+import br.com.zup.client.BcbClient
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.params.ParameterizedTest
 import org.mockito.Mockito
 import java.util.*
 import javax.inject.Inject
@@ -37,7 +37,7 @@ internal class RemoveChaveEndpointTest(
     val chave = Chave(
         UUID.fromString("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf"),
         TipoChave.CELULAR,
-        "111.111.111-11",
+        "11111111111",
         TipoConta.CONTA_CORRENTE,
         Conta(
             "Itaú",
@@ -56,9 +56,12 @@ internal class RemoveChaveEndpointTest(
 
     @Test
     internal fun `deve remover chave`() {
+
+        Mockito.`when`(bcbClient.deletaBcb(bcbRequest(),"11111111111"))
+            .thenReturn(HttpResponse.ok())
         grpcClient.deletar(RemovePixRequest.newBuilder()
             .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf")
-            .setPixId("111.111.111-11")
+            .setPixId("11111111111")
             .build())
         assertEquals(0,repository.count())
     }
@@ -69,7 +72,7 @@ internal class RemoveChaveEndpointTest(
         val error = assertThrows<StatusRuntimeException> {
             grpcClient.deletar(RemovePixRequest.newBuilder()
                 .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3be")
-                .setPixId("111.111.111-11")
+                .setPixId("11111111111")
                 .build())
         }
 
@@ -93,10 +96,37 @@ internal class RemoveChaveEndpointTest(
         }
     }
 
-    @MockBean(ContaClient::class)
+    @Test
+    internal fun `não deve deletar caso ocorra erro no bcb`() {
+
+        Mockito.`when`(bcbClient.deletaBcb(bcbRequest(),"11111111111"))
+            .thenReturn(HttpResponse.badRequest())
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.deletar(
+                RemovePixRequest.newBuilder()
+                    .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf")
+                    .setPixId("11111111111")
+                    .build())
+        }
+        with(error){
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Erro ao deletar chave no bcb", status.description)
+        }
+    }
+
+    private fun bcbRequest(): DeletaChaveRequest {
+        return DeletaChaveRequest(
+
+            key = "11111111111",
+            participant = "60701190"
+        )
+    }
+
+    @MockBean(BcbClient::class)
     fun bcbClient(): BcbClient?{
         return Mockito.mock(BcbClient::class.java)
     }
+
 
     @Factory
     class Clients{
