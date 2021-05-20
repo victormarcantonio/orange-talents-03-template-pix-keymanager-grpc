@@ -10,7 +10,7 @@ import javax.validation.constraints.Size
 @Entity
 class Chave(@field: NotNull val clienteId: UUID,
             @field: NotNull val tipoChave: TipoChave,
-            @field: NotBlank @field: Size(max=77) var chaveId: String,
+            @field: NotBlank @field: Size(max=77) var chave: String,
             @field: NotNull var tipoConta: TipoConta,
             @field:Embedded val conta: Conta
 ) {
@@ -31,7 +31,7 @@ class Chave(@field: NotNull val clienteId: UUID,
 
     fun atualiza(chaveAleatoria: String): Boolean{
         if(isAleatoria()){
-            this.chaveId = chaveAleatoria
+            this.chave = chaveAleatoria
             return true
         }
         return false
@@ -43,7 +43,7 @@ class Chave(@field: NotNull val clienteId: UUID,
 
         if (clienteId != other.clienteId) return false
         if (tipoChave != other.tipoChave) return false
-        if (chaveId != other.chaveId) return false
+        if (chave != other.chave) return false
         if (tipoConta != other.tipoConta) return false
         if (conta != other.conta) return false
 
@@ -53,7 +53,7 @@ class Chave(@field: NotNull val clienteId: UUID,
     override fun hashCode(): Int {
         var result = clienteId.hashCode()
         result = 31 * result + tipoChave.hashCode()
-        result = 31 * result + chaveId.hashCode()
+        result = 31 * result + chave.hashCode()
         result = 31 * result + tipoConta.hashCode()
         result = 31 * result + conta.hashCode()
         return result

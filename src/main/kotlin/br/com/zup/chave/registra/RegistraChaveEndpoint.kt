@@ -5,67 +5,66 @@ import br.com.zup.PixRequest
 import br.com.zup.PixResponse
 import br.com.zup.chave.Chave
 import br.com.zup.chave.ChaveRepository
-import br.com.zup.chave.exception.HttpResponseException
+import br.com.zup.chave.exception.ChaveExisteException
+import br.com.zup.chave.exception.ErrorHandler
 import br.com.zup.client.BcbClient
 import br.com.zup.client.ContaClient
-import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
 import io.micronaut.validation.Validated
+import org.slf4j.LoggerFactory
 import javax.inject.Singleton
 import javax.transaction.Transactional
-import javax.validation.ConstraintViolationException
 import javax.validation.Valid
+import javax.validation.Validator
+
 
 @Singleton
+@ErrorHandler
 @Validated
-class RegistraChaveEndpoint(val chaveRepository: ChaveRepository, val contaClient: ContaClient, val bcbClient: BcbClient): PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceImplBase() {
+class RegistraChaveEndpoint(
+    val chaveRepository: ChaveRepository,
+    val contaClient: ContaClient,
+    val bcbClient: BcbClient,
+    val validator: Validator
+) : PixKeymanagerRegistraGrpcServiceGrpc.PixKeymanagerRegistraGrpcServiceImplBase() {
 
-
-    override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
-
-        if(chaveRepository.existsByChaveId(request.chave)){
-            responseObserver.onError(Status.ALREADY_EXISTS
-                .withDescription("Chave já cadastrada")
-                .asRuntimeException())
-            return
-        }
-
-        val chaveRequest = request.toModel()
-        try{
-            val chave =  registra(chaveRequest)
-            responseObserver.onNext(PixResponse.newBuilder().setId(chave.chaveId).build())
-            responseObserver.onCompleted()
-        }catch (e: ConstraintViolationException){
-            responseObserver.onError(Status.INVALID_ARGUMENT
-                .withDescription("Dados inválidos")
-                .asRuntimeException())
-            return
-        }catch (e: HttpResponseException){
-            responseObserver.onError(Status.FAILED_PRECONDITION
-                .withDescription("erro ao cadastrar chave no bcb")
-                .asRuntimeException())
-        }
-    }
+    private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
 
     @Transactional
-    fun registra(@Valid chaveRequest: ChaveRequest): Chave {
+    override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
+
+        if (chaveRepository.existsByChave(request.chave)) {
+            throw ChaveExisteException("Chave já cadastrada")
+        }
+        val chaveRequest = request.toModel(validator)
+
+        val chave = registra(chaveRequest)
+        responseObserver.onNext(PixResponse.newBuilder().setId(chave.id.toString()).build())
+        responseObserver.onCompleted()
+
+    }
+
+    @Transactional
+    private fun registra(@Valid chaveRequest: ChaveRequest): Chave {
 
         val contaResponse = contaClient.consulta(chaveRequest.clienteId, chaveRequest.tipoConta.toString())
-        val requestToBcb = chaveRequest.toChaveRequestBcb(contaResponse = contaResponse?.body())
         val conta = contaResponse?.body()?.toConta() ?: throw IllegalStateException("Cliente não encontrado")
         val chave = chaveRequest.toChave(conta)
         chaveRepository.save(chave)
-        val bcbResponse =  bcbClient.cadastraBcb(requestToBcb)
-        if(bcbResponse.status != HttpStatus.CREATED){
-            throw HttpResponseException("Erro ao cadastrar chave no bcb")
+        val requestToBcb = chaveRequest.toChaveRequestBcb(chave)
+
+
+
+        println(requestToBcb)
+        val bcbResponse = bcbClient.cadastraBcb(requestToBcb)
+
+        println(bcbResponse.body())
+        if (bcbResponse.status != HttpStatus.CREATED) {
+            throw IllegalStateException("Erro ao cadastrar chave no bcb")
         }
-          chave.atualiza(bcbResponse.body()!!.key)
-
-        chaveRepository.update(chave)
-
-
+        chave.atualiza(bcbResponse.body()!!.key)
         return chave
     }
 

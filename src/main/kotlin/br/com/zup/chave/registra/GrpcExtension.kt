@@ -6,10 +6,12 @@ import br.com.zup.chave.TipoChave
 import br.com.zup.chave.TipoConta
 import br.com.zup.chave.TipoPessoa
 import br.com.zup.chave.remove.DeletaChaveRequest
+import javax.validation.ConstraintViolationException
+import javax.validation.Validator
 
 
-fun PixRequest.toModel() : ChaveRequest {
-    return ChaveRequest(
+fun PixRequest.toModel(validator: Validator) : ChaveRequest {
+    val chaveDTO = ChaveRequest(
         clienteId = id,
         tipoChave = when(tipoChave){
             br.com.zup.TipoChave.CHAVE_DEFAULT -> null
@@ -25,4 +27,9 @@ fun PixRequest.toModel() : ChaveRequest {
             else -> TipoPessoa.valueOf(tipoPessoa.name)
         }
     )
+    val validFields = validator.validate(chaveDTO)
+    if(validFields.isNotEmpty()){
+        throw ConstraintViolationException(validFields)
+    }
+    return chaveDTO
 }

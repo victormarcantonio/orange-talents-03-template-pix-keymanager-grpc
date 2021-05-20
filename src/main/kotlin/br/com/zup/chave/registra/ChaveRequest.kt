@@ -27,28 +27,28 @@ data class ChaveRequest(@field: NotNull val clienteId: String,
        }
        return Chave(clienteId = UUID.fromString(clienteId),
            tipoChave= tipoChave!!,
-            chaveId= chave,
+            chave= chave,
            tipoConta = tipoConta!!,
            conta= conta)
  }
 
-    fun toChaveRequestBcb(contaResponse: ContaResponse?): ChaveRequestBcb{
-        if(chave.isBlank()){
-            chave = ""
+    fun toChaveRequestBcb(chavePix: Chave): ChaveRequestBcb{
+        if(chavePix.isAleatoria()){
+            chavePix.chave = ""
         }
         return ChaveRequestBcb(
-            keyType = byKeyType(tipoChave),
-            key = this.chave,
+            keyType = byKeyType(chavePix.tipoChave),
+            key = chavePix.chave,
             bankAccount = BankAccountRequest(
-             contaResponse!!.instituicao.ispb,
-             contaResponse.agencia,
-             contaResponse.numero,
-             byTipoContaBcb(TipoConta.valueOf(contaResponse.tipo))
+             chavePix.conta.ispb,
+             chavePix.conta.agencia,
+             chavePix.conta.numero,
+             byTipoContaBcb(chavePix.tipoConta)
          ),
             owner = OwnerRequest(
                 tipoPessoa,
-                contaResponse.titular.nome,
-                contaResponse.titular.cpf
+                chavePix.conta.titular,
+                chavePix.conta.cpfTitular
             )
         )
     }
