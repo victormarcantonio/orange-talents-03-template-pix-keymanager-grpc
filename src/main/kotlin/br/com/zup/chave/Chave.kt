@@ -1,5 +1,7 @@
 package br.com.zup.chave
 
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
@@ -19,6 +21,10 @@ class Chave(@field: NotNull val clienteId: UUID,
     @Id
     @GeneratedValue
     val id: UUID? = null
+
+
+    @CreationTimestamp
+    val criadaEm: LocalDateTime?= null;
 
 
     fun pertenceAoCliente(clienteId: UUID):Boolean{

@@ -6,7 +6,6 @@ import javax.validation.constraints.NotBlank
 
 @Embeddable
 class Conta(
-
     @field: NotBlank val instituicao: String,
     @field: NotBlank val ispb: String,
     @field: NotBlank val titular: String,

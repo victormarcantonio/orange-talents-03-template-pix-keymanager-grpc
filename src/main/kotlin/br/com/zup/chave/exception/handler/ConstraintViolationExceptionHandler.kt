@@ -1,5 +1,6 @@
-package br.com.zup.chave.exception
+package br.com.zup.chave.exception.handler
 
+import br.com.zup.chave.exception.ExceptionHandler
 import com.google.protobuf.Any
 import com.google.rpc.BadRequest
 import com.google.rpc.Code

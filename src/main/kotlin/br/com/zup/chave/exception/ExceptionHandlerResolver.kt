@@ -1,5 +1,6 @@
 package br.com.zup.chave.exception
 
+import br.com.zup.chave.exception.handler.DefaultExceptionHandler
 import javax.inject.Inject
 import javax.inject.Singleton
 

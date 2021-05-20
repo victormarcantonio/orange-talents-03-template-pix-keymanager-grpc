@@ -179,6 +179,7 @@ internal class RegistraChaveEndpointTest(
                 .setChave(chave)
                 .setTipoConta(TipoConta.CONTA_CORRENTE)
                 .setTipoChave(tipoChave)
+                .setTipoPessoa(br.com.zup.TipoPessoa.NATURAL_PERSON)
                 .build())
         }
 
@@ -204,7 +205,7 @@ internal class RegistraChaveEndpointTest(
     }
 
 
-/*    @Test
+    @Test
     internal fun `nao deve cadastrar caso a chave informada não corresponda ao seu próprio tipo informado`() {
 
 
@@ -224,9 +225,9 @@ internal class RegistraChaveEndpointTest(
 
         with(error) {
 
-            assertEquals(Status.ALREADY_EXISTS.code, status.code)
+            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
         }
-    }*/
+    }
 
     @Test
     internal fun `nao deve cadastrar caso ocorra erro no bcb`() {

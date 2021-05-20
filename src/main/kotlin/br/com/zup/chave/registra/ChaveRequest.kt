@@ -37,7 +37,7 @@ data class ChaveRequest(@field: NotNull val clienteId: String,
             chavePix.chave = ""
         }
         return ChaveRequestBcb(
-            keyType = byKeyType(chavePix.tipoChave),
+            keyType = PixKeyType.by(chavePix.tipoChave),
             key = chavePix.chave,
             bankAccount = BankAccountRequest(
              chavePix.conta.ispb,
@@ -60,17 +60,6 @@ data class ChaveRequest(@field: NotNull val clienteId: String,
         }
         throw IllegalArgumentException("Tipo conta não encontrado")
     }
-
-    fun byKeyType(tipoChave: TipoChave?): PixKeyType{
-        when(tipoChave){
-            TipoChave.CPF-> return PixKeyType.CPF
-            TipoChave.CELULAR -> return PixKeyType.PHONE
-            TipoChave.EMAIL -> return PixKeyType.EMAIL
-            TipoChave.ALEATORIA-> return PixKeyType.RANDOM
-        }
-        throw IllegalArgumentException("Tipo chave inválido")
-    }
-
 
 }
 

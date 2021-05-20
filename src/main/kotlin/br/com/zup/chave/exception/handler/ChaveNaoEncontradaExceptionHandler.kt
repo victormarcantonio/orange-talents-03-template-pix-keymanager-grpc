@@ -1,5 +1,7 @@
-package br.com.zup.chave.exception
+package br.com.zup.chave.exception.handler
 
+import br.com.zup.chave.exception.ChaveNaoEncontradaException
+import br.com.zup.chave.exception.ExceptionHandler
 import io.grpc.Status
 import javax.inject.Singleton
 

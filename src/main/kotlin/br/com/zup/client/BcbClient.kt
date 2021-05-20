@@ -1,5 +1,6 @@
 package br.com.zup.client
 
+import br.com.zup.chave.consulta.ConsultaChaveResponse
 import br.com.zup.chave.registra.ChaveRequestBcb
 import br.com.zup.chave.registra.CreatePixKeyResponse
 import br.com.zup.chave.remove.DeletaChaveRequest
@@ -20,4 +21,9 @@ interface BcbClient {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     fun deletaBcb(@Body deletaChaveRequest: DeletaChaveRequest, @PathVariable key: String): HttpResponse<Any?>
+
+    @Get("/api/v1/pix/keys/{key}")
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    fun consultaBcb(@PathVariable key: String): HttpResponse<ConsultaChaveResponse>
 }
