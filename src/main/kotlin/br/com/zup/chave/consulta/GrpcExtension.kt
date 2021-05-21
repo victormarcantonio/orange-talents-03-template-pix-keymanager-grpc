@@ -16,7 +16,7 @@ fun ConsultaPixRequest.toModel(validator: Validator): Filtro{
 
     val violations = validator.validate(filtro)
     if(violations.isNotEmpty()){
-        throw javax.validation.ConstraintViolationException(violations)
+        throw ConstraintViolationException(violations)
     }
 
     return filtro

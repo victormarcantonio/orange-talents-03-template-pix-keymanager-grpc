@@ -49,7 +49,6 @@ sealed class Filtro{
                 }
         }
     }
-
     @Introspected
      class Invalido(): Filtro(){
         override fun filtra(chaveRepository: ChaveRepository, bcbClient: BcbClient): ChavePixInfo {

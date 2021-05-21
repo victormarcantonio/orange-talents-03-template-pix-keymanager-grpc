@@ -142,6 +142,19 @@ class ConsultaChaveEndpointTest(
         }
     }
 
+    @Test
+    internal fun `deve lancar IllegalArgumentException caso o filtro seja invalido`() {
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.consultar(ConsultaPixRequest.newBuilder().build())
+        }
+
+
+        with(error){
+            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+            assertEquals("Chave inválida ou não informada", status.description)
+        }
+    }
+
     private fun consultaRequest(): ConsultaChaveRequest {
         return ConsultaChaveRequest(
             clienteId = "5b5d5460-ec9e-4c30-add5-1c2fefa6c3bf",

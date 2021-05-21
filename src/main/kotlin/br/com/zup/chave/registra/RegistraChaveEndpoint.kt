@@ -31,8 +31,7 @@ class RegistraChaveEndpoint(
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-
-    @Transactional
+    
     override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
 
         if (chaveRepository.existsByChave(request.chave)) {
@@ -57,10 +56,8 @@ class RegistraChaveEndpoint(
 
 
 
-        println(requestToBcb)
         val bcbResponse = bcbClient.cadastraBcb(requestToBcb)
 
-        println(bcbResponse.body())
         if (bcbResponse.status != HttpStatus.CREATED) {
             throw IllegalStateException("Erro ao cadastrar chave no bcb")
         }

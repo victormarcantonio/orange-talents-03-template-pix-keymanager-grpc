@@ -24,7 +24,7 @@ class Chave(@field: NotNull val clienteId: UUID,
 
 
     @CreationTimestamp
-    val criadaEm: LocalDateTime?= null;
+    val criadaEm: LocalDateTime?= LocalDateTime.now();
 
 
     fun pertenceAoCliente(clienteId: UUID):Boolean{

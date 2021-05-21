@@ -24,6 +24,11 @@ service PixKeyManagerConsultaService {
 }
 
 
+service PixKeyManagerListaService {
+  rpc listar (ListaPixRequest) returns (ListaPixResponse);
+}
+
+
 enum TipoChave{
   CHAVE_DEFAULT = 0;
   CPF=1;
@@ -105,6 +110,26 @@ message ConsultaPixResponse {
  string clienteId = 2;
  ChavePix chave = 3;
 
+}
+
+
+message ListaPixRequest {
+  string clienteId=1;
+}
+
+message ListaPixResponse{
+
+  message Chave{
+    string pixId = 1;
+    TipoChave tipoChave = 2;
+    string chave = 3;
+    TipoConta tipoConta = 4;
+    google.protobuf.Timestamp criadaEm = 5;
+  }
+
+
+  string clienteId = 1;
+  repeated Chave chaves = 2;
 }
 
 

@@ -45,6 +45,7 @@ dependencies {
     testImplementation ("org.junit.jupiter:junit-jupiter-params:5.7.1")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.hamcrest:hamcrest-core:2.2")
     implementation("io.micronaut:micronaut-validation")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 
