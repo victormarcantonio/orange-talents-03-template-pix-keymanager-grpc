@@ -81,7 +81,7 @@ internal class RemoveChaveEndpointTest(
         }
 
         with(error){
-            assertEquals(Status.PERMISSION_DENIED.code, status.code)
+            assertEquals(Status.NOT_FOUND.code, status.code)
         }
     }
 
@@ -96,7 +96,7 @@ internal class RemoveChaveEndpointTest(
         }
         with(error){
             assertEquals(Status.NOT_FOUND.code, status.code)
-            assertEquals("Chave não existe", status.description)
+            assertEquals("Chave não encontrada ou não pertence ao cliente", status.description)
         }
     }
 
@@ -115,6 +115,36 @@ internal class RemoveChaveEndpointTest(
         with(error){
             assertEquals(Status.FAILED_PRECONDITION.code, status.code)
             assertEquals("Erro ao deletar chave no bcb", status.description)
+        }
+    }
+
+    @Test
+    internal fun `nao deve remover caso pix id esteja em branco`() {
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.deletar(
+                RemovePixRequest.newBuilder()
+                    .setClienteId("5b5d5460-ec9e-4c30-add5-1c2fefa6c3be")
+                    .setPixId("")
+                    .build())
+        }
+        with(error){
+            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+            assertEquals("Chave ou Cliente ID em branco. Devem ser preenchidos", status.description)
+        }
+    }
+
+    @Test
+    internal fun `nao deve remover caso cliente id esteja em branco`() {
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.deletar(
+                RemovePixRequest.newBuilder()
+                    .setClienteId("")
+                    .setPixId(CHAVE_EXISTENTE.id.toString())
+                    .build())
+        }
+        with(error){
+            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+            assertEquals("Chave ou Cliente ID em branco. Devem ser preenchidos", status.description)
         }
     }
 

@@ -31,7 +31,7 @@ class RegistraChaveEndpoint(
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-    
+
     override fun adicionar(request: PixRequest, responseObserver: StreamObserver<PixResponse>) {
 
         if (chaveRepository.existsByChave(request.chave)) {
