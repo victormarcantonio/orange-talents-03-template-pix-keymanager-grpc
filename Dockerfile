@@ -1,4 +1,9 @@
-FROM adoptopenjdk/openjdk11-openj9:jdk-11.0.1.13-alpine-slim
-COPY build/libs/example-*-all.jar example.jar
-EXPOSE 8080
-CMD java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar example.jar
+FROM openjdk:11-jdk-slim
+EXPOSE 50051
+ARG JAR_FILE=build/libs/*-all.jar
+
+ADD ${JAR_FILE} app.jar
+
+ENV APP_NAME keymanager-grpc
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
