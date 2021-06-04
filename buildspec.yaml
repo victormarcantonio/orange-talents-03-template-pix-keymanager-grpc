@@ -30,8 +30,8 @@ phases:
       - echo Building the Docker image...
       - docker image ls
       - docker build -t $DEPLOYMENT_NAME .
-      - docker tag $DEPLOYMENT_NAME:$IMAGE_TAG $URL_REPO/$DEPLOYMENT_NAME:$IMAGE_TAG
       - docker image ls
+      - docker tag $DEPLOYMENT_NAME:$IMAGE_TAG $URL_REPO/$DEPLOYMENT_NAME:$IMAGE_TAG
       - echo Build completed on `date`
 
   post_build:
