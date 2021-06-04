@@ -6,7 +6,6 @@ phases:
       - curl -o /bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.16.0/bin/linux/amd64/kubectl
       - curl -sS -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
       - wget -qO- https://get.helm.sh/helm-v3.5.2-linux-amd64.tar.gz | tar xvz
-      - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - mv linux-amd64/helm /bin/helm
       - chmod +x /bin/kubectl /bin/helm ./aws-iam-authenticator
       - export PATH=$PWD/:$PATH
@@ -16,8 +15,7 @@ phases:
     commands:
       - echo connecting ecr
       - docker login -u AWS -p $(aws ecr-public get-login-password --region us-east-1) $URL_REPO
-      # aqui você poderá colocar os comandos para o build de seu projeto, exemplo:
-      - sh gradlew build
+      - sh gradlew build -x test
       - echo exporting kubeconfig
       - export KUBECONFIG=$HOME/.kube/config
 
@@ -28,10 +26,12 @@ phases:
       - AWS_DEFAULT_REGION="$DEFAULT_REGION"
       - IMAGE_TAG="$IMAGE_TAG"
       - echo Build started on `date`
+      - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - echo Building the Docker image...
       - docker image ls
       - docker build -t $DEPLOYMENT_NAME .
       - docker tag $DEPLOYMENT_NAME:$IMAGE_TAG $URL_REPO/$DEPLOYMENT_NAME:$IMAGE_TAG
+      - docker image ls
       - echo Build completed on `date`
 
   post_build:
@@ -40,9 +40,8 @@ phases:
       - docker push $URL_REPO/$DEPLOYMENT_NAME:$IMAGE_TAG
       - echo Push completed on `date`
       - echo deploying to cluster...
-      # aqui um exemplo de implementação utilizando helm, caso utilize manifestos, lembre-se do kubectl apply -f <ARQUIVO>.yaml
       - helm version --short
-      - helm lint pipeline/helm/$DEPLOYMENT_NAME --values pipeline/helm/$DEPLOYMENT_NAME/values.yaml
+      - helm lint pipeline/helm/ --values pipeline/helm/values.yaml
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --role-arn $ARN_ROLE
       - kubectl get nodes
-      - helm upgrade -i $DEPLOYMENT_NAME pipeline/helm/$DEPLOYMENT_NAME/ --values pipeline/helm/$DEPLOYMENT_NAME/values.yaml
+      - helm upgrade -i $DEPLOYMENT_NAME pipeline/helm/ --values pipeline/helm/values.yaml
